@@ -22,7 +22,7 @@ def date_biz_day():
 
 biz_day = date_biz_day()
 
-def corp_daily_updown(biz_day):
+def daily_price(biz_day):
     gen_otp_url = 'http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
     gen_otp = {
         'locale': 'ko_KR',
@@ -53,8 +53,28 @@ def corp_daily_updown(biz_day):
                         np.where(daily_updown['종목코드'].str[-1:] != '0','우선주',
                         np.where(daily_updown['종목명'].str.endswith('리츠'),'리츠','보통주'
                                 )))
+    daily_updown['종목명'] = daily_updown['종목명'].str.strip()
     return daily_updown
 
-df = corp_daily_updown(biz_day)
-df.to_clipboard()
-print(df)
+df = daily_price(biz_day)
+print(df.values.tolist())
+
+con = pymysql.connect(user='root',
+                      passwd='dkvkxm8093!',
+                      host = '127.0.0.1',
+                      db='stock',
+                      charset='utf8'                      
+                      )
+mycursor = con.cursor()
+query = f"""
+    insert into daily_price (기준일,종목코드,종목명,시장구분,소속부,종가,대비,등락률,시가,고가,저가,거래량,거래대금,시가총액,상장주식수,종목구분)
+    values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) as new
+    on duplicate key update
+    종목명 = new.종목명,시장구분=new.시장구분,소속부=new.소속부,종가=new.종가,대비=new.대비,등락률=new.등락률,시가=new.시가,
+    고가=new.고가,저가=new.저가,거래량=new.거래량,거래대금=new.거래대금,시가총액=new.시가총액,상장주식수=new.상장주식수,종목구분=new.종목구분;
+"""
+args = df.values.tolist()
+mycursor.executemany(query,args)
+con.commit()
+
+con.close()
