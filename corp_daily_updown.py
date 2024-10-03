@@ -47,7 +47,7 @@ def corp_daily_updown(biz_day):
     daily_updown = pd.read_csv(BytesIO(down.content), encoding='EUC-KR')
     daily_updown.insert(0,'기준일',biz_day)
     daily_updown['시가총액'] = round(daily_updown['시가총액']/100000000,0)
-    daily_updown['거래대금'] = round(daily_updown['거래대금']/100000000,0)
+    daily_updown['거래대금'] = round(daily_updown['거래대금']/100000000,1)
     daily_updown = daily_updown.replace({np.nan:None})
     daily_updown['종목구분']=  np.where(daily_updown['종목명'].str.contains('스팩|제[0-9]+호'),'스팩',
                         np.where(daily_updown['종목코드'].str[-1:] != '0','우선주',
