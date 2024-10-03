@@ -1,0 +1,60 @@
+import requests
+from bs4 import BeautifulSoup
+import re
+from io import BytesIO
+import pandas as pd
+from datetime import datetime
+import numpy as np
+import pymysql
+
+
+def date_biz_day():
+    url = 'https://finance.naver.com/sise/sise_index.naver?code=KOSPI'
+    res = requests.get(url)
+    soup = BeautifulSoup(res.content)
+
+    parse_day = soup.select_one('#time').text
+    
+    biz_day = re.findall('[0-9]+',parse_day)
+    biz_day = ''.join(biz_day)
+    return biz_day
+
+
+biz_day = date_biz_day()
+
+def corp_daily_updown(biz_day):
+    gen_otp_url = 'http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
+    gen_otp = {
+        'locale': 'ko_KR',
+        'mktId': 'ALL',
+        'trdDd': biz_day,
+        'share': '1',
+        'money': '1',
+        'csvxls_isNo': 'false',
+        'name': 'fileDown',
+        'url': 'dbms/MDC/STAT/standard/MDCSTAT01501'
+        }
+
+    headers = {
+            'Referer':'http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
+            }
+
+    otp_stk = requests.post(gen_otp_url,gen_otp,headers=headers).text
+
+    down_url = 'http://data.krx.co.kr/comm/fileDn/download_csv/download.cmd'
+    down = requests.post(down_url, {'code':otp_stk}, headers=headers)
+    daily_updown = pd.read_csv(BytesIO(down.content), encoding='EUC-KR')
+    daily_updown.insert(0,'기준일',biz_day)
+    daily_updown['시가총액'] = round(daily_updown['시가총액']/100000000,0)
+    daily_updown['거래대금'] = round(daily_updown['거래대금']/100000000,0)
+    daily_updown = daily_updown.replace({np.nan:None})
+    daily_updown['종목구분']=  np.where(daily_updown['종목명'].str.contains('스팩|제[0-9]+호'),'스팩',
+                        np.where(daily_updown['종목코드'].str[-1:] != '0','우선주',
+                        np.where(daily_updown['종목명'].str.endswith('리츠'),'리츠','보통주'
+                                )))
+    return daily_updown
+
+df = corp_daily_updown(biz_day)
+df.to_clipboard()
+print(df)
