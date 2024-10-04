@@ -8,6 +8,8 @@ import numpy as np
 import pymysql
 
 
+
+
 gen_otp_url = 'http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
 gen_otp = {
         'locale': 'ko_KR',

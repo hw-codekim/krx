@@ -9,6 +9,7 @@ import random
 from tqdm import tqdm
 import warnings
 import numpy as np
+from datetime import datetime,timedelta
 
 warnings.filterwarnings("ignore")
 
@@ -41,7 +42,32 @@ def corp_code():
     con.close()
     return result
 
-def corp_trading(spec_code,code, corp,biz_day):
+
+def corp_amount():
+    con = pymysql.connect(user='root',
+                      passwd='dkvkxm8093!',
+                      host = '127.0.0.1',
+                      db='stock',
+                      charset='utf8'                      
+                      )
+    mycursor = con.cursor()
+    sql = """
+        SELECT 기준일,종목코드,종목명,시가총액 FROM daily_price
+        where 1=1
+        AND 기준일 = '20241004'
+        AND 종목구분 = '보통주'
+        AND 시가총액 >= 5000;
+        """
+    mycursor.execute(sql)
+    result = mycursor.fetchall()
+    con.close()
+    return result
+
+
+
+
+
+def corp_trading(spec_code,code, corp,biz_day,biz_day_start):
     gen_otp_url = 'http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
     gen_otp = {
         'locale': 'ko_KR',
@@ -53,7 +79,7 @@ def corp_trading(spec_code,code, corp,biz_day):
         'isuCd2': code,
         'codeNmisuCd_finder_stkisu0_1': f'{corp}',
         'param1isuCd_finder_stkisu0_1': 'ALL',
-        'strtDd': biz_day,
+        'strtDd': biz_day_start, # 1년전
         'endDd': biz_day,
         'detailView': '1',
         'money': '1',
@@ -103,14 +129,35 @@ def db_insert(df):
     con.close()
 
 if __name__ == '__main__':
+    
+    # 날짜 선택
     biz_day = date_biz_day()
+    biz_day_end = datetime.strptime(biz_day,'%Y%m%d')
+    one_year_ago = biz_day_end - timedelta(days=365)
+    biz_day_start = one_year_ago.strftime("%Y%m%d")
+
+    # 시총 5000억 이상된 기업만 소팅해서 표준코드 구하기
+
+    amount = corp_amount()
+    amount_df = pd.DataFrame(amount)
     corp_lists = corp_code()
+    corp_lists_df = pd.DataFrame(corp_lists)
+    corp_lists_df.merge(amount_df)
+    final_lists = pd.concat([amount_df,corp_lists_df],axis=1)
+    final_lists = final_lists.dropna()
+    final_lists = final_lists.iloc[:,[1,2,4]]
+    final_lists.columns = ['code','corp','spec_code']
+
+    # 거래대금 가져오기
     rnd = random.randint(1, 2)
-        
     rst_df = pd.DataFrame()
-    for spec_code,code,corp in tqdm(corp_lists):
-        df = corp_trading(spec_code,code,corp,biz_day)
+    for idx,row in tqdm(final_lists.iterrows()):
+        code = row['code']
+        corp = row['corp']
+        spec_code = row['spec_code'] 
+ 
+        df = corp_trading(spec_code,code,corp,biz_day,biz_day_start)
         rst_df = pd.concat([rst_df,df])
-        print(rst_df)
+        # time.sleep(rnd)
     db_insert(rst_df)
     
