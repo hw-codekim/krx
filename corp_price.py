@@ -21,32 +21,6 @@ def date_biz_day():
     return biz_day
 
 
-# gen_otp_url = 'http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
-# gen_otp_stk = {
-#     'locale': 'ko_KR',
-#     'mktId': 'ALL',
-#     'strtDd': '20240930',
-#     'endDd': '20240930',
-#     'adjStkPrc_check': 'Y',
-#     'adjStkPrc': '2',
-#     'share': '1',
-#     'money': '1',
-#     'csvxls_isNo': 'false',
-#     'name': 'fileDown',
-#     'url': 'dbms/MDC/STAT/standard/MDCSTAT01602'
-#     }
-
-# headers = {
-#         'Referer':'http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201020102',
-#         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
-#            }
-
-# otp_stk = requests.post(gen_otp_url,gen_otp_stk,headers=headers).text
-
-# down_url = 'http://data.krx.co.kr/comm/fileDn/download_csv/download.cmd'
-# down_sector_stk = requests.post(down_url, {'code':otp_stk}, headers=headers)
-
-# sector_stk = pd.read_csv(BytesIO(down_sector_stk.content), encoding='EUC-KR')
 biz_day = date_biz_day()
 
 # 코스피

@@ -43,7 +43,7 @@ def corp_code():
     return result
 
 
-def corp_amount():
+def corp_amount(biz_day):
     con = pymysql.connect(user='root',
                       passwd='dkvkxm8093!',
                       host = '127.0.0.1',
@@ -51,10 +51,10 @@ def corp_amount():
                       charset='utf8'                      
                       )
     mycursor = con.cursor()
-    sql = """
+    sql = f"""
         SELECT 기준일,종목코드,종목명,시가총액 FROM daily_price
         where 1=1
-        AND 기준일 = '20241004'
+        AND 기준일 = '{biz_day}'
         AND 종목구분 = '보통주'
         AND 시가총액 >= 5000;
         """
@@ -67,7 +67,7 @@ def corp_amount():
 
 
 
-def corp_trading(spec_code,code, corp,biz_day,biz_day_start):
+def corp_trading(spec_code,code, corp,biz_day,biz_day_start,amount):
     gen_otp_url = 'http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
     gen_otp = {
         'locale': 'ko_KR',
@@ -102,9 +102,10 @@ def corp_trading(spec_code,code, corp,biz_day,biz_day_start):
     corp_trading_df.iloc[:, 1:] = corp_trading_df.iloc[:, 1:].apply(lambda x: round(x/100000000, 1))
     corp_trading_df.columns = corp_trading_df.columns.str.replace(' ','')
     corp_trading_df = corp_trading_df.rename(columns={'일자':'기준일'})
+    corp_trading_df.insert(1,'시총',amount)
     corp_trading_df.insert(1,'종목명',corp)
     corp_trading_df.insert(1,'종목코드',code)
-    corp_trading_df = corp_trading_df.replace({np.nan:None})
+    corp_trading_df = corp_trading_df.replace({np.nan:0})
     time.sleep(rnd)
     return corp_trading_df
 
@@ -117,10 +118,10 @@ def db_insert(df):
                       )
     mycursor = con.cursor()
     query = f"""
-        insert into trade_amount (기준일,종목코드,종목명,금융투자,보험,투신,사모,은행,기타금융,연기금등,기타법인,개인,외국인,기타외국인,전체)
-        values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) as new
+        insert into trade_amount (기준일,종목코드,종목명,시총,금융투자,보험,투신,사모,은행,기타금융,연기금등,기타법인,개인,외국인,기타외국인,전체)
+        values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) as new
         on duplicate key update
-        종목명 = new.종목명,금융투자=new.금융투자,보험=new.보험,투신=new.투신,사모=new.사모,은행=new.은행,기타금융=new.기타금융,
+        종목명 = new.종목명,시총=new.시총,금융투자=new.금융투자,보험=new.보험,투신=new.투신,사모=new.사모,은행=new.은행,기타금융=new.기타금융,
         연기금등=new.연기금등,기타법인=new.기타법인,개인=new.개인,외국인=new.외국인,기타외국인=new.기타외국인,전체=new.전체;
     """
     args = df.values.tolist()
@@ -138,26 +139,34 @@ if __name__ == '__main__':
 
     # 시총 5000억 이상된 기업만 소팅해서 표준코드 구하기
 
-    amount = corp_amount()
+    amount = corp_amount(biz_day)
     amount_df = pd.DataFrame(amount)
+    amount_df.columns = ['기준일','종목코드','종목명','시총']
+    
     corp_lists = corp_code()
     corp_lists_df = pd.DataFrame(corp_lists)
-    corp_lists_df.merge(amount_df)
-    final_lists = pd.concat([amount_df,corp_lists_df],axis=1)
+    corp_lists_df.columns = ['표준코드','종목코드','종목명']
+    
+    final_lists = pd.merge(amount_df,corp_lists_df,how='left')
     final_lists = final_lists.dropna()
-    final_lists = final_lists.iloc[:,[1,2,4]]
-    final_lists.columns = ['code','corp','spec_code']
+    
+    
+    
 
     # 거래대금 가져오기
     rnd = random.randint(1, 2)
     rst_df = pd.DataFrame()
     for idx,row in tqdm(final_lists.iterrows()):
-        code = row['code']
-        corp = row['corp']
-        spec_code = row['spec_code'] 
+        code = row['종목코드']
+        corp = row['종목명']
+        spec_code = row['표준코드']
+        amount = row['시총']
  
-        df = corp_trading(spec_code,code,corp,biz_day,biz_day_start)
+        df = corp_trading(spec_code,code,corp,biz_day,biz_day_start,amount)
+
         rst_df = pd.concat([rst_df,df])
-        # time.sleep(rnd)
+        # print(rst_df.info())
+        time.sleep(rnd)
     db_insert(rst_df)
+    
     

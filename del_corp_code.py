@@ -35,12 +35,13 @@ corp_code = corp_code[['표준코드','단축코드','한글종목약명','상�
 corp_code.columns = ['표준코드','종목코드','종목명','상장일','시장구분','종목구분']
 corp_code = corp_code.replace({np.nan:None})
 
-con = pymysql.connect(user='root',
-                      passwd='dkvkxm8093!',
-                      host = '127.0.0.1',
-                      db='stock',
-                      charset='utf8'                      
-                      )
+con = pymysql.connect(
+        user='root',
+        passwd='dkvkxm8093!',
+        host = '127.0.0.1',
+        db='stock',
+        charset='utf8'                      
+        )
 mycursor = con.cursor()
 query = f"""
     insert into code_corp (표준코드,종목코드,종목명,상장일,시장구분,종목구분)
