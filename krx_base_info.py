@@ -6,7 +6,7 @@ import pymysql
 from key.db_info import connectDB
 from biz_day import date_biz_day
 
-class load_krx_base_info():
+class krx_base_info():
         
         biz_day = date_biz_day()
         def base_info(biz_day):
@@ -66,5 +66,5 @@ class load_krx_base_info():
                         print(e)
                         
 if __name__ == '__main__':
-        data = load_krx_base_info.base_info()
-        load_krx_base_info.insertDB(data)
+        data = krx_base_info.base_info()
+        krx_base_info.insertDB(data)

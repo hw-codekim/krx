@@ -96,11 +96,7 @@ def whynot_report(fr_dt,to_dt):
     df['date'] = pd.to_datetime(df['date'])
     df['date'] = df['date'].dt.strftime('%Y%m%d')
     df = df.rename(columns={'price':'target_price'})
-    time.sleep(2)
     return df
-
-
-
 
 def db_insert(db_info,df):
     con = pymysql.connect(

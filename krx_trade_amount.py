@@ -14,14 +14,6 @@ from key.db_info import connectDB
 warnings.filterwarnings("ignore")
 
 
-# # 제공받은 프록시 정보
-# proxies = {
-#     'http': 'http://20.44.189.184:3129',
-#     'https': 'https://20.44.189.184:3129',
-# }
-
-
-
 def date_biz_day():
     url = 'https://finance.naver.com/sise/sise_index.naver?code=KOSPI'
     res = requests.get(url)

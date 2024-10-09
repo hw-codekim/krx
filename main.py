@@ -1,5 +1,5 @@
 from krx_base_info import load_krx_base_info
-from dart_code_corp import dart_employee
+# from dart_code_corp import dart_employee
 from biz_day import date_biz_day
 
 biz_day = date_biz_day()
