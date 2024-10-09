@@ -3,7 +3,7 @@ from io import BytesIO
 import pandas as pd
 import numpy as np
 import pymysql
-from db_info import connectDB
+from key.db_info import connectDB
 from biz_day import date_biz_day
 
 class load_krx_base_info():

@@ -2,7 +2,7 @@ import json
 
 class connectDB():
     def db_conn():
-        with open("./db_con.json",'r',encoding='utf-8') as f:
+        with open("./key/db_con.json",'r',encoding='utf-8') as f:
             data = json.load(f)    
             user = data['user']
             password = data['password']

@@ -15,12 +15,13 @@ import matplotlib.font_manager as fm
 
 
 def corp_trading_money(corp):
-    con = pymysql.connect(user='root',
-                      passwd='dkvkxm8093!',
-                      host = '127.0.0.1',
-                      db='stock',
-                      charset='utf8'                      
-                      )
+    con = pymysql.connect(
+            user=db_info[0],
+            password=db_info[1],
+            host = db_info[2],
+            port = int(db_info[3]),
+            database=db_info[4],                     
+            )
     mycursor = con.cursor()
     sql = f"""
         SELECT 기준일,종목코드,종목명,투신,사모,연기금등,외국인 FROM trade_amount
