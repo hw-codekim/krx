@@ -53,15 +53,13 @@ def corp_amount(biz_day,db_info):
             )
     mycursor = con.cursor()
     sql = f"""
-        SELECT 기준일,종목코드,종목명 FROM krx_base_info
+        SELECT 기준일,종목코드,종목명 FROM krx_daily_price
         where 1=1
         AND 기준일 = '{biz_day}'
-        AND 종목구분 = '보통주'
-        AND 종목구분 = '보통주';
+        AND 시가총액 >= '5000';
         """
     mycursor.execute(sql)
     result = mycursor.fetchall()
-    print(result)
     con.close()
     return result
 
@@ -132,38 +130,32 @@ if __name__ == '__main__':
     # 날짜 선택
     biz_day = date_biz_day()
     biz_day_end = datetime.strptime(biz_day,'%Y%m%d')
-    one_year_ago = biz_day_end - timedelta(days=5)
+    one_year_ago = biz_day_end - timedelta(days=365)
     biz_day_start = one_year_ago.strftime("%Y%m%d")
 
     # 시총 5000억 이상된 기업만 소팅해서 표준코드 구하기
 
-    # amount = corp_amount(biz_day)
+    amount = corp_amount(biz_day,db_info)
     
-    # amount_df = pd.DataFrame(amount)
-    # print(amount)
-    # amount_df.columns = ['기준일','종목코드','종목명']
+    amount_df = pd.DataFrame(amount,columns = ['기준일','종목코드','종목명'])
+   
     
     corp_lists = corp_code(db_info)
-    corp_lists_df = pd.DataFrame(corp_lists)
-    corp_lists_df.columns = ['표준코드','종목코드','종목명']
-    print(corp_lists_df)
-    # final_lists = pd.merge(amount_df,corp_lists_df,how='left')
-    # final_lists = final_lists.dropna()
-    
+    corp_lists_df = pd.DataFrame(corp_lists,columns = ['표준코드','종목코드','종목명'])
+    final_lists = pd.merge(amount_df,corp_lists_df,how='left')
+    final_lists = final_lists.dropna()
+    print(final_lists)
     
     
 
     # 거래대금 가져오기
-    rnd = random.randint(1, 2)
     rst_df = pd.DataFrame()
-    for idx,row in tqdm(corp_lists_df.iterrows()):
+    for idx,row in tqdm(final_lists.iterrows()):
         code = row['종목코드']
         corp = row['종목명']
         spec_code = row['표준코드']
-        # amount = row['시총']
- 
-        df = corp_trading(spec_code,code,corp,biz_day,biz_day_start)
 
+        df = corp_trading(spec_code,code,corp,biz_day,biz_day_start)
         rst_df = pd.concat([rst_df,df])
-        # print(rst_df.info())
-        db_insert(rst_df,db_info)
+
+    db_insert(rst_df,db_info)
