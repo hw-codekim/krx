@@ -61,7 +61,7 @@ class krx_base_info():
                         mycursor.executemany(query,args)
                         con.commit()
                         con.close()
-                        print(f'{biz_day} krx_base_info AWS_DB Insert 성공')
+                        print(f'{biz_day} [krx_base_info] DB INSERT 성공')
                 except Exception as e:
                         print(e)
                         

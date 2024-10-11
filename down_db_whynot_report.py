@@ -45,7 +45,6 @@ if __name__ == '__main__':
     df = pd.DataFrame(data,columns=['id','date','company_name','analyst_name','target_price','judge','title','description','analyst_rank','stock_code_id','analyst_id'])
     # df.to_excel('whynot_report_20240101_20241010.xlsx',index=False)
     
-    df_1010 = df[df['date'] == '2024-10-10']
     # 날짜별로 정렬 후 groupby로 각 회사/애널리스트별 이전 목표가 찾기
     df_sorted = df.sort_values(by=['company_name', 'analyst_name', 'date'])
     

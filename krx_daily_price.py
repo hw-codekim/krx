@@ -70,7 +70,7 @@ def db_insert(df,db_info):
     args = df.values.tolist()
     mycursor.executemany(query,args)
     con.commit()
-    print(f'DB INSERT 성공')
+    print(f'{biz_day} [krx_daily_price] DB INSERT 성공')
     con.close()
     
 if __name__ == '__main__':

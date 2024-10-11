@@ -70,6 +70,7 @@ def db_insert(df,db_info):
     args = df.values.tolist()
     mycursor.executemany(query,args)
     con.commit()
+    print(f'[dart_stock_buysell] DB INSERT 성공')
     con.close()   
         
         

@@ -123,14 +123,16 @@ def db_insert(df,db_info):
     args = df.values.tolist()
     mycursor.executemany(query,args)
     con.commit()
+    print(f'{biz_day} [krx_trade_amount] DB INSERT 성공')
     con.close()
 
 if __name__ == '__main__':
     db_info = connectDB.db_conn()
     # 날짜 선택
     biz_day = date_biz_day()
+    print(biz_day)
     biz_day_end = datetime.strptime(biz_day,'%Y%m%d')
-    one_year_ago = biz_day_end - timedelta(days=365)
+    one_year_ago = biz_day_end - timedelta(days=1)
     biz_day_start = one_year_ago.strftime("%Y%m%d")
 
     # 시총 5000억 이상된 기업만 소팅해서 표준코드 구하기
@@ -144,7 +146,7 @@ if __name__ == '__main__':
     corp_lists_df = pd.DataFrame(corp_lists,columns = ['표준코드','종목코드','종목명'])
     final_lists = pd.merge(amount_df,corp_lists_df,how='left')
     final_lists = final_lists.dropna()
-    print(final_lists)
+    print(len(final_lists))
     
     
 
