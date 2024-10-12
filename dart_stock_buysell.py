@@ -1,93 +1,78 @@
-import json
 import requests
-import time
 import pandas as pd
-from key.db_info import connectDB
 import pymysql
-from tqdm import tqdm
+from bs4 import BeautifulSoup
+from html_table_parser import parser_functions as parser
+import numpy as np
+import re
+import time
 
+class stock_buysell:
 
+    def stock_buysell(dart,rcept_no,corp_name,flr_nm,rcept_dt):
+        res = dart.sub_docs(rcept_no)['url'][3]
+        call = requests.get(res)
+        soup = BeautifulSoup(call.text, "html.parser")
+        before = soup.select('body > table')
+        if '사유' in parser.make2d(before[-1])[0][0]:
+            table = parser.make2d(before[-1])
+        elif '사유' in parser.make2d(before[-2])[0][0]:
+            table = parser.make2d(before[-2])
+        data = pd.DataFrame(table,columns=table[1])
+        data = data.drop(index=[0,1])
+        data = data.drop(data.index[-1:])
+        data.insert(0,'종목명',corp_name)
+        data.insert(0,'기준일',rcept_dt)
+        data.insert(9,'보고자',flr_nm)
+        # data = data[data['보고사유'].str.contains('장내매수|장내매도')]
+        data['변동일*'] = data['변동일*'].str.strip().str.replace('년 ','.').str.replace('월 ','.').str.replace('일','')
+        data.columns = ['기준일','종목명','보고사유','변동일','증권종류','변동전','증감','변동후','단가','보고자','비고']
+        data.drop(columns='비고',inplace=True)
+        data = data.replace({'-':None})
+        data = data[~data['종목명'].str.contains('리츠')]
+        data['단가'] = data['단가'].apply(lambda x: re.sub('[^0-9]', '', str(x)) if x is not None else '').replace('', '0').astype(int)
+        # data['단가'] = data['단가'].str.replace(',','').str.replace('',np.nan).str.replace('-','').str.replace('처분','').str.replace('원','').str.replace('(','').str.replace(')','').str.replace('취득','').str.replace('/','').str.replace('해당없음','').fillna(0).astype(int)
+        data['변동전'] = data['변동전'].str.replace(',','').fillna(0).astype(int)
+        data['증감'] = data['증감'].str.replace(',','').fillna(0).astype(int)
+        data['변동후'] = data['변동후'].str.replace(',','').fillna(0).astype(int)
+        data['금액'] = round((data['증감'] * data['단가'])/100000000,2)
+        data = data.replace({np.nan:None})
+        time.sleep(2)
+        return data
 
-def dart_key():
-    with open("./key/dart_api_key.json",'r',encoding='utf-8') as f:
-        key = json.load(f)   
-
-    dart_key = key['dart_api_key']
-    return dart_key
-
-
-def loadDB_dart_code(db_info):
-    con = pymysql.connect(
-            user=db_info[0],
-            password=db_info[1],
-            host = db_info[2],
-            port = int(db_info[3]),
-            database=db_info[4],                     
-            )
-    mycursor = con.cursor()
-    sql = f"""
-        SELECT corp_code,corp_name,stock_code FROM dart_code
+    def db_insert_stock_buysell(biz_day,df,db_info):
+        con = pymysql.connect(
+                user=db_info[0],
+                password=db_info[1],
+                host = db_info[2],
+                port = int(db_info[3]),
+                database=db_info[4],                     
+                )
+        mycursor = con.cursor()
+        query = f"""
+            insert into dart_stock_buysell (기준일,종목명,보고사유,변동일,증권종류,변동전,증감,변동후,단가,보고자,금액)
+            values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) as new
+            on duplicate key update
+            보고사유 = new.보고사유,증권종류=new.증권종류,변동전=new.변동전,증감=new.증감,변동후=new.변동후,단가=new.단가,금액=new.금액;
         """
-    mycursor.execute(sql)
-    result = mycursor.fetchall()
-    con.close()
-    return result        
-
-def loadDart_stock_buysell(dart_key,corp_code):
-    url = 'https://opendart.fss.or.kr/api/elestock.json'
-    params = {
-        'crtfc_key' : dart_key,
-        'corp_code' : corp_code, # 
-    }
-    res = requests.get(url,params=params)
-    data = res.json()
-    df = pd.DataFrame(data['list'])
-    df = df[['rcept_dt','corp_name','repror','isu_exctv_rgist_at','isu_exctv_ofcps','isu_main_shrholdr','sp_stock_lmp_cnt','sp_stock_lmp_irds_cnt','sp_stock_lmp_rate','sp_stock_lmp_irds_rate']]
-    df.columns = ['기준일','종목명','보고자','임원','직위','주요주주','주식수','증감수','비율','증감비율']
-    df['주식수'] = df['주식수'].str.replace(',','')
-    df['증감수'] = df['증감수'].str.replace(',','')
-    df['비율'] = df['비율'].str.replace(',','')
-    df['증감비율'] = df['증감비율'].str.replace(',','')
-    df = df.apply(pd.to_numeric,errors = 'ignore')
-    time.sleep(1)
-    return df
-        
-def db_insert(df,db_info):
-    con = pymysql.connect(
-            user=db_info[0],
-            password=db_info[1],
-            host = db_info[2],
-            port = int(db_info[3]),
-            database=db_info[4],                     
-            )
-    mycursor = con.cursor()
-    query = f"""
-        insert into dart_stock_buysell (기준일,종목명,보고자,임원,직위,주요주주,주식수,증감수,비율,증감비율)
-        values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) as new
-        on duplicate key update
-        임원 = new.임원,직위=new.직위,주요주주=new.주요주주,주식수=new.주식수,증감수=new.증감수,비율=new.비율,증감비율=new.증감비율;
-    """
-    args = df.values.tolist()
-    mycursor.executemany(query,args)
-    con.commit()
-    print(f'[dart_stock_buysell] DB INSERT 성공')
-    con.close()   
+        args = df.values.tolist()
+        mycursor.executemany(query,args)
+        con.commit()
+        print(f'[{biz_day}][dart_stock_buysell] DB INSERT 성공')
+        con.close()   
         
         
         
-        
-if __name__ == '__main__':
-    db_info = connectDB.db_conn()
-    dartkey = dart_key()
+# if __name__ == '__main__':
+#     date = date_biz_day()
+#     dartkey = dart_key()
+#     dart = OpenDartReader(dartkey)
+#     bgn_de = date
+#     end_de = date
+#     page_count = 100
+#     search = ['임원ㆍ주요주주특정증권등소유상황보고서']
     
-    code_ = loadDB_dart_code(db_info)
-    code_lists = pd.DataFrame(code_,columns=['corp_code','name','stock_code'])
-    code_lists['corp_code'] = code_lists['corp_code'].astype(str)
-
-    for code,name in tqdm(zip(code_lists['corp_code'],code_lists['name'])):
-        try:
-            df = loadDart_stock_buysell(dartkey,code)
-            db_insert(df,db_info)
-            print(df)
-        except Exception as e:
-            print(name, e)
+#     df = pd.DataFrame()
+#     for page_no in range(1,10):
+#         lists = loadDart_list(dartkey,bgn_de,end_de,page_no,page_count,search)
+#         df = pd.concat([df,lists])
