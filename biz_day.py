@@ -1,11 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import collections
 
+if not hasattr(collections, 'Callable'):
+    collections.Callable = collections.abc.Callable
+    
 def date_biz_day():
     url = 'https://finance.naver.com/sise/sise_index.naver?code=KOSPI'
     res = requests.get(url)
-    soup = BeautifulSoup(res.content)
+    soup = BeautifulSoup(res.text,'html.parser')
 
     parse_day = soup.select_one('#time').text
     

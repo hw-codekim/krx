@@ -26,7 +26,7 @@ class dart_stock_buysell:
         for rcept_no,corp_name,flr_nm,rcept_dt  in zip(list_df['rcept_no'],list_df['corp_name'],list_df['flr_nm'],list_df['rcept_dt']):
             res = dart.sub_docs(rcept_no)['url'][3]
             call = requests.get(res)
-            soup = BeautifulSoup(call.text, "html.parser")
+            soup = BeautifulSoup(call.text, "html.parser")  
             before = soup.select('body > table')
             if '사유' in parser.make2d(before[-1])[0][0]:
                 table = parser.make2d(before[-1])
@@ -51,6 +51,7 @@ class dart_stock_buysell:
             data['변동후'] = data['변동후'].str.replace(',','').fillna(0).astype(int)
             data['금액'] = round((data['증감'] * data['단가'])/100000000,2)
             data = data.replace({np.nan:None})
+            print(data)
             df = pd.concat([df,data])
             time.sleep(2)
         print(f'[{biz_day}] [krx_trade_amount] {len(df)}개 로딩 성공')
@@ -79,6 +80,7 @@ class dart_stock_buysell:
         
         
 # if __name__ == '__main__':
+    
 #     date = date_biz_day()
 #     dartkey = dart_key()
 #     dart = OpenDartReader(dartkey)
