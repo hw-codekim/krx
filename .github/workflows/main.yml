@@ -1,0 +1,28 @@
+name: Run main.py daily
+
+on:
+  schedule:
+    # 매일 저녁 7시에 트리거 (시간은 UTC 기준, 한국은 +9 시간)
+    - cron: "00 10 * * *"
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'  # 원하는 Python 버전 설정
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # 필요한 패키지 설치
+
+    - name: Run main.py
+      run: |
+        python main.py  # main.py 실행
