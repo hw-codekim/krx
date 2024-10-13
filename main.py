@@ -61,4 +61,4 @@ if __name__ == '__main__':
     krxTradeAmount(biz_day,db_info)                      # 6. 시총 5000억 이상 종목만 거래대금 DB INSERT 20~30분 소요
     
     # 가져오기
-    햣
+    
