@@ -1,7 +1,7 @@
 import json
 import os
 
-class DartKey:
+class dartKey:
     @staticmethod
     def get_dart_key():
         # 환경 변수에서 DART_API_KEY 값을 불러옴

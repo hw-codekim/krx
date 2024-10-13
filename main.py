@@ -47,7 +47,7 @@ def dartStockBuysell(biz_day,dart,dart_key,db_info):
 if __name__ == '__main__':
     
     #기본적인 데이터
-    dart_key = dartKey.dart_key()
+    dart_key = dartKey.get_dart_key()
     dart = OpenDartReader(dart_key)
     biz_day = date_biz_day()
     db_info = connectDB.db_conn()
