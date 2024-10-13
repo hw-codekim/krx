@@ -25,5 +25,12 @@ jobs:
         pip install -r requirements.txt  # 필요한 패키지 설치
 
     - name: Run main.py
+      env:
+        DART_API_KEY: ${{ secrets.DART_API_KEY }} 
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        DB_NAME: ${{ secrets.DB_NAME }}
       run: |
         python main.py  # main.py 실행
