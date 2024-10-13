@@ -37,6 +37,7 @@ class stock_buysell:
         data['변동후'] = data['변동후'].str.replace(',','').fillna(0).astype(int)
         data['금액'] = round((data['증감'] * data['단가'])/100000000,2)
         data = data.replace({np.nan:None})
+        print(f'{biz_day} [krx_trade_amount] {len(data)}개 로딩 성공')
         time.sleep(2)
         return data
 
@@ -58,7 +59,7 @@ class stock_buysell:
         args = df.values.tolist()
         mycursor.executemany(query,args)
         con.commit()
-        print(f'[{biz_day}][dart_stock_buysell] DB INSERT 성공')
+        print(f'[{biz_day}][dart_stock_buysell] {len(df)}개 DB INSERT 성공')
         con.close()   
         
         

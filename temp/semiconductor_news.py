@@ -15,11 +15,10 @@ def semi_news():
         res = requests.get(url,verify=False)
         soup = BeautifulSoup(res.text,'html.parser')
         posts = soup.select('#fboardlist > div > table > tbody >tr')
-        
         for i,post in enumerate(posts):
             date = post.select_one(f'tr:nth-child({i+1}) > td.td_date.KSIA-rt-border00').text
-            
-            if date == '2024-07-09':
+  
+            if date == '2024-10-10':
                 title = post.select_one(f'tr:nth-child({i+1}) > td.td_subject.KSIA-rt-border00 > a').text.strip()
                 link = post.select_one(f'tr:nth-child({i+1}) > td.td_subject.KSIA-rt-border00 > a').attrs['href']            
                 news_list.append([date,title,link])
@@ -33,4 +32,4 @@ semi_df = semi_news()
 unique_df = semi_df['날짜'].unique()[0]
 final_df = semi_df[semi_df['날짜'] == unique_df]
 
-semi_df.to_excel(f'./date/semi_news_{unique_df}.xlsx',index=False)
+semi_df.to_excel(f'./semi_news_{unique_df}.xlsx',index=False)

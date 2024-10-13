@@ -8,7 +8,6 @@ from biz_day import date_biz_day
 
 class krx_base_info():
         
-        biz_day = date_biz_day()
         def base_info(biz_day):
                 try:
                         gen_otp_url = 'http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
@@ -35,12 +34,12 @@ class krx_base_info():
                         corp_code = corp_code[['표준코드','단축코드','한글종목약명','상장일','시장구분','주식종류']]
                         corp_code.columns = ['표준코드','종목코드','종목명','상장일','시장구분','종목구분']
                         corp_code = corp_code.replace({np.nan:None})
-                        print(f'{biz_day} krx_base_info 로딩 성공')
+                        print(f'{biz_day} krx_base_info {len(corp_code)}개 로딩 성공')
                 except Exception as e:
                         print(e)
                 return corp_code
                 
-        def insertDB(biz_day,data):
+        def insertDB(biz_day,df,db_info):
                 try:
                         db_info = connectDB.db_conn()
                         con = pymysql.connect(
@@ -57,14 +56,10 @@ class krx_base_info():
                         on duplicate key update
                         종목명 = new.종목명,상장일=new.상장일,시장구분=new.시장구분,종목구분=new.종목구분;
                         """
-                        args = data.values.tolist()
+                        args = df.values.tolist()
                         mycursor.executemany(query,args)
                         con.commit()
                         con.close()
-                        print(f'{biz_day} [krx_base_info] DB INSERT 성공')
+                        print(f'{biz_day} [krx_base_info] {len(df)}개 DB INSERT 성공')
                 except Exception as e:
                         print(e)
-                        
-if __name__ == '__main__':
-        data = krx_base_info.base_info()
-        krx_base_info.insertDB(data)

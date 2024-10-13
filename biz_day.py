@@ -12,3 +12,6 @@ def date_biz_day():
     biz_day = re.findall('[0-9]+',parse_day)
     biz_day = ''.join(biz_day)
     return biz_day
+
+if __name__ == '__main__':
+    date_biz_day()
