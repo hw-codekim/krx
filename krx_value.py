@@ -37,7 +37,7 @@ class krx_value:
         data.insert(0,'기준일',biz_day)
         data.columns = data.columns.str.replace(' ','')
         data = data.replace({np.nan:None})
-        print(f'{biz_day} [krx_value] {len(data)}개 로딩 성공')
+        print(f'[{biz_day}] [krx_value] {len(data)}개 로딩 성공')
         return data
 
     def insertDB(biz_day,df,db_info):
@@ -59,7 +59,7 @@ class krx_value:
         args = df.values.tolist()
         mycursor.executemany(query,args)
         con.commit()
-        print(f'{biz_day} [krx_value] {len(df)}개 DB INSERT 성공')
+        print(f'[{biz_day}] [krx_value] {len(df)}개 DB INSERT 성공')
         con.close()
     
 if __name__ == '__main__':

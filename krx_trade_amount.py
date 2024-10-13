@@ -109,7 +109,7 @@ class krx_trade_amount:
                 corp_trading_df.insert(1,'종목코드',code)
                 corp_trading_df = corp_trading_df.replace({np.nan:0})
                 rst_df = pd.concat([rst_df,corp_trading_df])
-                print(f'{biz_day} [krx_trade_amount] {corp} 로딩 성공')
+                print(f'[{biz_day}] [krx_trade_amount] {corp} 로딩 성공')
                 time.sleep(2)
             except Exception as e:
                 print(f'{corp} 로딩실패',e)

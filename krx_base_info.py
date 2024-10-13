@@ -34,7 +34,7 @@ class krx_base_info():
                         corp_code = corp_code[['표준코드','단축코드','한글종목약명','상장일','시장구분','주식종류']]
                         corp_code.columns = ['표준코드','종목코드','종목명','상장일','시장구분','종목구분']
                         corp_code = corp_code.replace({np.nan:None})
-                        print(f'{biz_day} krx_base_info {len(corp_code)}개 로딩 성공')
+                        print(f'[{biz_day}] krx_base_info {len(corp_code)}개 로딩 성공')
                 except Exception as e:
                         print(e)
                 return corp_code

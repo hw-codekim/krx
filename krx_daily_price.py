@@ -39,7 +39,7 @@ class krx_daily_price:
         daily_updown['거래대금'] = round(daily_updown['거래대금']/100000000,1)
         daily_updown = daily_updown.replace({np.nan:None})
         daily_updown['종목명'] = daily_updown['종목명'].str.strip()
-        print(f'{biz_day} [krx_daily_price] {len(daily_updown)}개 로딩 성공')
+        print(f'[{biz_day}] [krx_daily_price] {len(daily_updown)}개 로딩 성공')
         return daily_updown
 
     def insertDB(biz_day,df,db_info):
