@@ -53,7 +53,7 @@ class dart_stock_buysell:
             data = data.replace({np.nan:None})
             print(data)
             df = pd.concat([df,data])
-            time.sleep(2)
+            time.sleep(3)
         print(f'[{biz_day}] [krx_trade_amount] {len(df)}개 로딩 성공')
         return df
 

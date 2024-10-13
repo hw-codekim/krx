@@ -57,8 +57,9 @@ if __name__ == '__main__':
     krxDailyPrice(biz_day,db_info)                       # 2. krx 매일 등락률 및 시총
     krxValue(biz_day,db_info)                            # 3. krx EPS,PER.. 등 업데이트
     whynotReport(biz_day,db_info)                        # 4. whynotsell 사이트의 레포트를 DB Insert 
-    dartStockBuysell(biz_day,dart,dart_key,db_info)      # 5. 임원ㆍ주요주주특정증권등소유상황보고서 항목 DB INSERT
     krxTradeAmount(biz_day,db_info)                      # 6. 시총 5000억 이상 종목만 거래대금 DB INSERT 20~30분 소요
+    dartStockBuysell(biz_day,dart,dart_key,db_info)      # 5. 임원ㆍ주요주주특정증권등소유상황보고서 항목 DB INSERT
+    
     
     # 가져오기
     

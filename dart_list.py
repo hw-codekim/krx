@@ -24,7 +24,7 @@ class dartList:
         df = pd.DataFrame(data['list'])
         df = df[df['report_nm'].isin(search)]
         print(f'{len(df)}개 항목')
-        time.sleep(2)
+        time.sleep(3)
         return df
 
 # def document(dart,rcept_no,corp_name,flr_nm,rcept_dt):
