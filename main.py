@@ -60,3 +60,5 @@ if __name__ == '__main__':
     dartStockBuysell(biz_day,dart,dart_key,db_info)      # 5. 임원ㆍ주요주주특정증권등소유상황보고서 항목 DB INSERT
     krxTradeAmount(biz_day,db_info)                      # 6. 시총 5000억 이상 종목만 거래대금 DB INSERT 20~30분 소요
     
+    # 가져오기
+    햣
