@@ -4,7 +4,7 @@ on:
   workflow_dispatch:  # 이 줄이 있어야 수동 실행 가능
   schedule:
     # 매일 저녁 7시에 트리거 (시간은 UTC 기준, 한국은 +9 시간)
-    - cron: "00 10 * * *"
+    - cron: "30 9 * * *"
 
 jobs:
   run-script:
