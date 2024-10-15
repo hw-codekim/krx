@@ -17,5 +17,6 @@ def date_biz_day():
     biz_day = ''.join(biz_day)
     return biz_day
 
-# if __name__ == '__main__':
-#     date_biz_day()
+if __name__ == '__main__':
+    date = date_biz_day()
+    print(date)

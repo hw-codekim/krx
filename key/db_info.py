@@ -10,6 +10,8 @@ class connectDB():
         port = os.getenv('DB_PORT')
         database = os.getenv('DB_NAME')
         return user, password, host, port, database
+    
+    
 # class connectDB():
 #     def db_conn():
 #         with open("./key/db_con.json",'r',encoding='utf-8') as f:
@@ -21,16 +23,6 @@ class connectDB():
 #             database = data['database']
 #             # charset = data['charset']
 #         return user,password,host,port,database
-        # conn = pymysql.connect(
-        #     user=user,
-        #     password=password,
-        #     host = host,
-        #     port = int(port),
-        #     database=database,
-        #     # charset=charset                     
-        #     )
-        # curs = conn.cursor()
-        # print(curs)
         
 
 
