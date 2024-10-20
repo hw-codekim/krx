@@ -8,6 +8,8 @@ import numpy as np
 import pymysql
 from key.db_info import connectDB
 import time
+from biz_day import date_biz_day
+
 
 class krx_daily_price:
 
@@ -40,6 +42,7 @@ class krx_daily_price:
         daily_updown = daily_updown.replace({np.nan:None})
         daily_updown['종목명'] = daily_updown['종목명'].str.strip()
         print(f'[{biz_day}] [krx_daily_price] {len(daily_updown)}개 로딩 성공')
+        time.sleep(2)
         return daily_updown
 
     def insertDB(biz_day,df,db_info):
@@ -64,3 +67,18 @@ class krx_daily_price:
         print(f'{biz_day} [krx_daily_price] {len(df)}개 DB INSERT 성공')
         con.close()
     
+if __name__ == '__main__':
+    biz_day = date_biz_day()
+    db_info = connectDB.db_conn()
+    
+    biz_day_format = pd.to_datetime(biz_day)
+    ago_format = biz_day_format - timedelta(days=134)
+    date_range = pd.date_range(ago_format, biz_day_format)
+    print(date_range)
+    for day in date_range:
+        day_str = day.strftime('%Y%m%d')  # YYYYMMDD 형식으로 변환
+        try:
+            df = krx_daily_price.daily_price(day_str)
+            krx_daily_price.insertDB(day_str,df,db_info)
+        except Exception as e:
+            print(f'{day}',e)

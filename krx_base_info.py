@@ -6,6 +6,8 @@ import pymysql
 from key.db_info import connectDB
 from biz_day import date_biz_day
 
+
+
 class krx_base_info():
         
         def base_info(biz_day):
@@ -63,3 +65,4 @@ class krx_base_info():
                         print(f'{biz_day} [krx_base_info] {len(df)}개 DB INSERT 성공')
                 except Exception as e:
                         print(e)
+
