@@ -50,21 +50,21 @@ class google_stocknews:
                 for item in items:
                     pub_date = item.find('pubdate').get_text()
                     pub_date = datetime.strptime(pub_date, '%a, %d %b %Y %H:%M:%S %Z').strftime('%Y-%m-%d')
-                    
                     if pub_date == today:
                         title = item.find('title').get_text()
                         link = item.find('description')
                         description_soup = BeautifulSoup(link.get_text(), 'html.parser')
                         a_tag = description_soup.find('a')
-                        link = a_tag['href']   
-                        dd.append([pub_date,title,link])
+                        a_link = a_tag['href']
+                        dd.append([pub_date,title,a_link])
                 ddf = pd.DataFrame(dd, columns=['기준일','제목','링크'])
+                ddf = ddf[~ddf['제목'].str.contains('조선비즈')]
                 ddf = ddf.sort_values('기준일',ascending=False)
                 ddf.insert(0,'종목명',corp_name)
                 ddf.reset_index(drop=True,inplace=True)
                 ddf = ddf.drop_duplicates('기준일')
-                
                 google_stocknews.insertDB(biz_day,ddf,db_info)
+                print(f'[{biz_day}] [google_news] {corp_name} DB INSERT 성공')
                 news_df = pd.concat([news_df,ddf])
                 # google_stocknews.insertDB(biz_day,news_df,db_info)
                 # time.sleep(1)
@@ -93,12 +93,12 @@ class google_stocknews:
         args = df.values.tolist()
         mycursor.executemany(query,args)
         con.commit()
-        print(f'[{biz_day}] [google_news] {len(df)}개 DB INSERT 성공')
+        # print(f'[{biz_day}] [google_news] {len(df)}개 DB INSERT 성공')
         con.close()
         
 if __name__ == '__main__':
     biz_day = date_biz_day()
     db_info = connectDB.db_conn()
     data = google_stocknews.get_search_google(db_info,biz_day)
-    # google_stocknews.insertDB(biz_day,data,db_info)
+    google_stocknews.insertDB(biz_day,data,db_info)
     # print(data)
