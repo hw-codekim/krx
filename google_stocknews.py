@@ -51,26 +51,13 @@ class google_stocknews:
                 for item in items:
                     pub_date = item.find('pubdate').get_text()
                     pub_date = datetime.strptime(pub_date, '%a, %d %b %Y %H:%M:%S %Z').strftime('%Y-%m-%d')
-<<<<<<< HEAD
-=======
-                    
-                    pub_date = '2024-10-25' #임시
-                    today = '2024-10-25' #임시
-                    
->>>>>>> ba6c42fde7774654616ae52f915a282b852bd3a7
                     if pub_date == today:
                         title = item.find('title').get_text()
                         link = item.find('description')
                         description_soup = BeautifulSoup(link.get_text(), 'html.parser')
                         a_tag = description_soup.find('a')
-<<<<<<< HEAD
                         a_link = a_tag['href']
                         dd.append([pub_date,title,a_link])
-=======
-                        link = a_tag['href']
- 
-                        dd.append([pub_date,title,link])
->>>>>>> ba6c42fde7774654616ae52f915a282b852bd3a7
                 ddf = pd.DataFrame(dd, columns=['기준일','제목','링크'])
                 ddf = ddf[~ddf['제목'].str.contains('조선비즈')]
                 ddf = ddf.sort_values('기준일',ascending=False)
