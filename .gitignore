@@ -164,3 +164,6 @@ cython_debug/
 db_con.json
 dart_api_key.json
 /stock_venv/
+dart_conn.py
+db_info.py
+
