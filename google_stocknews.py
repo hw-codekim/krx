@@ -9,6 +9,8 @@ from key.db_info import connectDB
 from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore")
+
+
 class google_stocknews:
     def get_krx_daily_price(db_info,biz_day):
         con = pymysql.connect(
@@ -60,6 +62,7 @@ class google_stocknews:
                         dd.append([pub_date,title,a_link])
                 ddf = pd.DataFrame(dd, columns=['기준일','제목','링크'])
                 ddf = ddf[~ddf['제목'].str.contains('조선비즈')]
+                ddf = ddf[~ddf['제목'].str.contains('주식쇼')]
                 ddf = ddf.sort_values('기준일',ascending=False)
                 ddf.insert(0,'종목명',corp_name)
                 ddf.reset_index(drop=True,inplace=True)
