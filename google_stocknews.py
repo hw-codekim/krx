@@ -52,8 +52,8 @@ class google_stocknews:
                     pub_date = item.find('pubdate').get_text()
                     pub_date = datetime.strptime(pub_date, '%a, %d %b %Y %H:%M:%S %Z').strftime('%Y-%m-%d')
                     
-                    pub_date = '2024-10-25' #임시
-                    today = '2024-10-25' #임시
+                    # pub_date = '2024-10-25' #임시
+                    # today = '2024-10-25' #임시
                     
                     if pub_date == today:
                         title = item.find('title').get_text()
